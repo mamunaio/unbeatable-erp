@@ -1,0 +1,238 @@
+// ==============================================================================
+// UNBEATABLE ERP — Master i18n Translation Dictionary (Bengali & English)
+// ==============================================================================
+
+export type Locale = "bn" | "en";
+
+export const dictionaries = {
+  bn: {
+    // Brand & App
+    appName: "Unbeatable",
+    appSubtitle: "রিটেইল ইআরপি",
+    brandTagline: "আধুনিক শপ ম্যানেজমেন্ট প্ল্যাটফর্ম",
+
+    // Navigation & Menus
+    nav_dashboard: "ড্যাশবোর্ড",
+    nav_pos: "পিওএস কাউন্টার",
+    nav_products: "প্রোডাক্ট ক্যাটালগ",
+    nav_special_addons: "স্পেশাল অ্যাড-অন",
+    nav_inventory: "ইনভেন্টরি ও স্টক",
+    nav_sales: "বিক্রয় ও ইনভয়েস",
+    nav_promotions: "কুপন ও অফার",
+    nav_marketing: "এসএমএস ও মার্কেটিং",
+    nav_logistics: "কুরিয়ার ও ডেলিভারি",
+    nav_purchases: "পণ্য ক্রয় (Purchases)",
+    nav_customers: "গ্রাহক / কাস্টমার",
+    nav_suppliers: "সাপ্লায়ার ও মহাজন",
+    nav_expenses: "দৈনন্দিন খরচ / ক্যাশ",
+    nav_bank_accounts: "ব্যাংক ও হিসাব",
+    nav_hr: "এইচআর ও কর্মচারী",
+    nav_reports: "রিপোর্ট ও লাভ-ক্ষতি",
+    nav_settings: "সেটিংস ও ব্রাঞ্চ",
+
+    // Common Actions
+    action_add_new: "＋ নতুন যোগ করুন",
+    action_save: "সংরক্ষণ করুন",
+    action_cancel: "বাতিল",
+    action_edit: "সম্পাদনা",
+    action_delete: "মুছে ফেলুন",
+    action_print: "প্রিন্ট করুন",
+    action_export_csv: "📥 Export CSV",
+    action_export_excel: "📥 Export Excel",
+    action_search: "খুঁজুন...",
+    action_filter: "ফিল্টার",
+    action_back: "ফিরে যান",
+    action_submit: "জমা দিন",
+    action_close: "বন্ধ করুন",
+    action_confirm: "নিশ্চিত করুন",
+    action_track: "ট্র্যাক করুন",
+    action_reconcile: "রিকনসিল",
+
+    // POS Counter Terms
+    pos_title: "আল্ট্রাফাস্ট পিওএস কাউন্টার",
+    pos_search_placeholder: "🔍 বারকোড স্ক্যান করুন বা প্রোডাক্টের নাম লিখুন (শর্টকাট: /)",
+    pos_cart_empty: "কার্ট বর্তমানে খালি রয়েছে",
+    pos_item: "আইটেম",
+    pos_qty: "পরিমাণ",
+    pos_unit_price: "একক মূল্য",
+    pos_subtotal: "সাব-টোটাল",
+    pos_discount: "ছাড় / ডিসকাউন্ট",
+    pos_vat: "ভ্যাট ও ট্যাক্স",
+    pos_grand_total: "সর্বমোট প্রদেয় বিল",
+    pos_payment_method: "পেমেন্ট মাধ্যম",
+    pos_cash: "নগদ (Cash)",
+    pos_bkash: "বিকাশ (bKash)",
+    pos_nagad: "নগদ (Nagad)",
+    pos_card: "কার্ড (Card)",
+    pos_split: "স্প্লিট পেমেন্ট",
+    pos_checkout_btn: "⚡ বিল পরিশোধ ও প্রিন্ট (F8)",
+    pos_hold_sale: "হোল্ড সেল",
+    pos_clear_cart: "কার্ট মুছুন",
+    pos_customer_walkin: "ওয়াক-ইন কাস্টমার",
+
+    // Inventory & Catalog Terms
+    inv_sku: "SKU",
+    inv_barcode: "বারকোড",
+    inv_category: "ক্যাটাগরি",
+    inv_stock: "বর্তমান স্টক",
+    inv_reorder_point: "রিঅর্ডার পয়েন্ট",
+    inv_purchase_cost: "ক্রয় খরচ",
+    inv_selling_price: "বিক্রয় মূল্য",
+    inv_low_stock: "স্বল্প স্টক",
+    inv_in_stock: "মজুদ আছে",
+    inv_out_of_stock: "স্টক শেষ",
+
+    // Financial & Accounting Terms
+    fin_net_profit: "নিট মুনাফা",
+    fin_gross_profit: "গ্রস লাভ",
+    fin_cogs: "বিক্রিত পণ্যের ব্যয়",
+    fin_operating_expenses: "পরিচালন ব্যয়",
+    fin_total_assets: "মোট সম্পদ",
+    fin_total_liabilities: "মোট দায়",
+    fin_owner_equity: "মালিকানা স্বত্ব",
+    fin_balanced: "ব্যালান্সড ও নির্ভুল",
+    fin_due: "বকেয়া",
+    fin_paid: "পরিশোধিত",
+
+    // HR & Attendance Terms
+    hr_attendance: "হাজিরা",
+    hr_present: "উপস্থিত",
+    hr_late: "দেরি",
+    hr_leave: "ছুটি",
+    hr_absent: "অনুপস্থিত",
+    hr_basic_salary: "মূল বেতন",
+    hr_commission: "সেলস কমিশন",
+    hr_net_salary: "চূড়ান্ত প্রদেয় বেতন",
+    hr_pay_slip: "বেতন স্লিপ",
+
+    // Logistics Terms
+    log_consignment_id: "কনসাইনমেন্ট আইডি",
+    log_recipient: "প্রাপক",
+    log_district: "জেলা",
+    log_cod_amount: "সিওডি টাকা",
+    log_status_in_transit: "পথে রয়েছে",
+    log_status_delivered: "সফল ডেলিভার্ড",
+    log_status_returned: "রিটার্ন / ফেরত",
+    log_remittance: "সিওডি রেমিট্যান্স",
+
+    // Language Toggle
+    lang_current: "বাংলা",
+    lang_toggle_prompt: "Switch to English",
+  },
+  en: {
+    // Brand & App
+    appName: "Unbeatable",
+    appSubtitle: "Retail ERP",
+    brandTagline: "Advanced Retail & Shop Management System",
+
+    // Navigation & Menus
+    nav_dashboard: "Dashboard",
+    nav_pos: "POS Counter",
+    nav_products: "Products Catalog",
+    nav_special_addons: "Special Add-ons",
+    nav_inventory: "Inventory Ledger",
+    nav_sales: "Sales & Invoices",
+    nav_promotions: "Coupons & Offers",
+    nav_marketing: "SMS & Marketing",
+    nav_logistics: "Courier & Logistics",
+    nav_purchases: "Purchases & PO",
+    nav_customers: "Customers CRM",
+    nav_suppliers: "Suppliers & Vendors",
+    nav_expenses: "Expenses / Cash",
+    nav_bank_accounts: "Bank & Accounts",
+    nav_hr: "HR & Staff",
+    nav_reports: "Reports & Profit",
+    nav_settings: "Settings & Branch",
+
+    // Common Actions
+    action_add_new: "＋ Add New",
+    action_save: "Save Changes",
+    action_cancel: "Cancel",
+    action_edit: "Edit",
+    action_delete: "Delete",
+    action_print: "Print",
+    action_export_csv: "📥 Export CSV",
+    action_export_excel: "📥 Export Excel",
+    action_search: "Search...",
+    action_filter: "Filter",
+    action_back: "Go Back",
+    action_submit: "Submit",
+    action_close: "Close",
+    action_confirm: "Confirm",
+    action_track: "Track",
+    action_reconcile: "Reconcile",
+
+    // POS Counter Terms
+    pos_title: "Ultra-Fast POS Counter",
+    pos_search_placeholder: "🔍 Scan barcode or type product name (Shortcut: /)",
+    pos_cart_empty: "Cart is currently empty",
+    pos_item: "Item",
+    pos_qty: "Qty",
+    pos_unit_price: "Unit Price",
+    pos_subtotal: "Subtotal",
+    pos_discount: "Discount",
+    pos_vat: "VAT & Tax",
+    pos_grand_total: "Grand Total",
+    pos_payment_method: "Payment Method",
+    pos_cash: "Cash",
+    pos_bkash: "bKash",
+    pos_nagad: "Nagad",
+    pos_card: "Card",
+    pos_split: "Split Payment",
+    pos_checkout_btn: "⚡ Pay & Print Receipt (F8)",
+    pos_hold_sale: "Hold Sale",
+    pos_clear_cart: "Clear Cart",
+    pos_customer_walkin: "Walk-in Customer",
+
+    // Inventory & Catalog Terms
+    inv_sku: "SKU",
+    inv_barcode: "Barcode",
+    inv_category: "Category",
+    inv_stock: "Current Stock",
+    inv_reorder_point: "Reorder Point",
+    inv_purchase_cost: "Purchase Cost",
+    inv_selling_price: "Selling Price",
+    inv_low_stock: "Low Stock",
+    inv_in_stock: "In Stock",
+    inv_out_of_stock: "Out of Stock",
+
+    // Financial & Accounting Terms
+    fin_net_profit: "Net Profit",
+    fin_gross_profit: "Gross Profit",
+    fin_cogs: "Cost of Goods Sold (COGS)",
+    fin_operating_expenses: "Operating Expenses",
+    fin_total_assets: "Total Assets",
+    fin_total_liabilities: "Total Liabilities",
+    fin_owner_equity: "Owner's Equity",
+    fin_balanced: "Balanced & Verified",
+    fin_due: "Due Amount",
+    fin_paid: "Paid",
+
+    // HR & Attendance Terms
+    hr_attendance: "Attendance",
+    hr_present: "Present",
+    hr_late: "Late",
+    hr_leave: "On Leave",
+    hr_absent: "Absent",
+    hr_basic_salary: "Basic Salary",
+    hr_commission: "Sales Commission",
+    hr_net_salary: "Net Salary Payable",
+    hr_pay_slip: "Pay Slip",
+
+    // Logistics Terms
+    log_consignment_id: "Consignment ID",
+    log_recipient: "Recipient",
+    log_district: "District",
+    log_cod_amount: "COD Amount",
+    log_status_in_transit: "In Transit",
+    log_status_delivered: "Delivered",
+    log_status_returned: "Returned",
+    log_remittance: "COD Remittance",
+
+    // Language Toggle
+    lang_current: "English",
+    lang_toggle_prompt: "বাংলায় পরিবর্তন করুন",
+  },
+};
+
+export type DictionaryKey = keyof typeof dictionaries.en;
