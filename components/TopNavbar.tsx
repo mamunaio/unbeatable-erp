@@ -5,11 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShiftControlModal } from "./ShiftControlModal";
 import { useAuth } from "./AuthProvider";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { IconSearch, IconPos, IconBell, IconRefresh } from "./Icons";
 
 export function TopNavbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () => void }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { isBengali } = useLanguage();
   const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -23,13 +25,19 @@ export function TopNavbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () 
           onClick={onOpenCommandPalette}
           style={{ cursor: "pointer" }}
         >
-          <IconSearch size={16} color="var(--text-muted)" />
+          <IconSearch size={16} color="var(--primary)" />
           <input
             readOnly
-            placeholder="সার্চ করুন (ইনভয়েস, কাস্টমার, প্রোডাক্ট)..."
+            placeholder={
+              isBengali
+                ? "সার্চ করুন (ইনভয়েস, কাস্টমার, প্রোডাক্ট)..."
+                : "Search (Invoices, Customers, Products)..."
+            }
             style={{ cursor: "pointer" }}
           />
-          <kbd>Ctrl+K</kbd>
+          <kbd>
+            Ctrl+K
+          </kbd>
         </div>
 
         <div className="topbar-right">
@@ -39,32 +47,37 @@ export function TopNavbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () 
             className="btn-secondary"
             style={{ padding: "7px 14px", fontSize: 13, gap: 8 }}
           >
-            <span>💵 শিফট কন্ট্রোল</span>
+            <span>{isBengali ? "💵 শিফট কন্ট্রোল" : "💵 Shift Control"}</span>
           </button>
 
-          {/* Direct POS Trigger */}
+          {/* Direct Luxury POS Trigger */}
           <Link href="/pos" className="btn-primary" style={{ padding: "7px 16px", fontSize: 13, gap: 6 }}>
-            <IconPos size={16} />
+            <IconPos size={16} color="#ffffff" />
             <span>Open POS</span>
           </Link>
 
           {/* Quick Notification Bell */}
           <button
-            onClick={() => alert("🔔 নোটিফিকেশন: ১টি লো-স্টক অ্যালার্ট এবং ২টি নতুন পার্সেল ডেলিভারি পেন্ডিং রয়েছে।")}
+            onClick={() =>
+              alert(
+                isBengali
+                  ? "🔔 নোটিফিকেশন: ১টি লো-স্টক অ্যালার্ট এবং ২টি নতুন পার্সেল ডেলিভারি পেন্ডিং রয়েছে।"
+                  : "🔔 Notifications: 1 low-stock alert and 2 new parcel deliveries pending."
+              )
+            }
             className="topbar-btn"
-            title="Notifications"
+            title={isBengali ? "নোটিফিকেশন" : "Notifications"}
           >
-            <IconBell size={18} />
+            <IconBell size={18} color="var(--text-main)" />
             <span
               style={{
                 position: "absolute",
-                top: 7,
-                right: 7,
-                width: 8,
-                height: 8,
+                top: 8,
+                right: 8,
+                width: 7,
+                height: 7,
                 background: "var(--danger)",
                 borderRadius: "50%",
-                border: "1.5px solid #fff",
               }}
             />
           </button>
@@ -82,7 +95,7 @@ export function TopNavbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () 
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-main)", lineHeight: 1.2 }}>
                   {user?.name || "Admin User"}
                 </div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
+                <div style={{ fontSize: 11, color: "var(--primary)", fontWeight: 600 }}>
                   {user?.role || "OWNER"} • {user?.branchName || "Main Branch"}
                 </div>
               </div>
@@ -96,12 +109,12 @@ export function TopNavbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () 
                   right: 0,
                   top: "100%",
                   marginTop: 8,
-                  width: 210,
-                  background: "#fff",
+                  width: 220,
+                  background: "#ffffff",
                   borderRadius: "var(--radius-md)",
-                  boxShadow: "var(--shadow-xl)",
+                  boxShadow: "var(--shadow-lg)",
                   border: "1px solid var(--border-color)",
-                  padding: 8,
+                  padding: 6,
                   zIndex: 60,
                   animation: "scaleIn 0.15s ease-out",
                 }}
@@ -113,7 +126,7 @@ export function TopNavbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () 
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
-                    padding: "9px 12px",
+                    padding: "8px 12px",
                     borderRadius: "var(--radius-sm)",
                     fontSize: 13,
                     fontWeight: 600,
@@ -124,7 +137,7 @@ export function TopNavbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () 
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
                   <IconRefresh size={15} color="var(--primary)" />
-                  <span>রোল পরিবর্তন করুন</span>
+                  <span>{isBengali ? "রোল পরিবর্তন করুন" : "Switch Role"}</span>
                 </Link>
 
                 <div style={{ borderTop: "1px solid var(--border-color)", margin: "4px 0" }} />
@@ -154,7 +167,7 @@ export function TopNavbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () 
                   onMouseEnter={(e) => (e.currentTarget.style.background = "var(--danger-bg)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                  <span>🚪 লগআউট (Sign Out)</span>
+                  <span>{isBengali ? "🚪 লগআউট (Sign Out)" : "🚪 Sign Out"}</span>
                 </button>
               </div>
             )}

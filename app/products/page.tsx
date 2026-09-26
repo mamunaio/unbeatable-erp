@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/formatters";
 import { exportToCsv } from "@/lib/export";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import {
   IconProducts,
   IconPlus,
@@ -38,6 +39,7 @@ const initialProducts: ProductRow[] = [
 ];
 
 export default function ProductsPage() {
+  const { isBengali } = useLanguage();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [products] = useState<ProductRow[]>(initialProducts);
@@ -59,14 +61,14 @@ export default function ProductsPage() {
     exportToCsv({
       filename: "Unbeatable_Products_Catalog",
       headers: [
-        { key: "name", label: "Product Name" },
+        { key: "name", label: isBengali ? "প্রোডাক্টের নাম" : "Product Name" },
         { key: "sku", label: "SKU" },
-        { key: "barcode", label: "Barcode" },
-        { key: "category", label: "Category" },
-        { key: "stock", label: "Current Stock" },
-        { key: "purchasePrice", label: "Purchase Cost (BDT)" },
-        { key: "sellingPrice", label: "Selling Price (BDT)" },
-        { key: "status", label: "Status" },
+        { key: "barcode", label: isBengali ? "বারকোড" : "Barcode" },
+        { key: "category", label: isBengali ? "ক্যাটাগরি" : "Category" },
+        { key: "stock", label: isBengali ? "মজুদ স্টক" : "Current Stock" },
+        { key: "purchasePrice", label: isBengali ? "ক্রয়মূল্য (BDT)" : "Purchase Cost (BDT)" },
+        { key: "sellingPrice", label: isBengali ? "বিক্রয়মূল্য (BDT)" : "Selling Price (BDT)" },
+        { key: "status", label: isBengali ? "স্ট্যাটাস" : "Status" },
       ],
       data: filtered,
     });
@@ -81,24 +83,28 @@ export default function ProductsPage() {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span className="badge badge-primary">Catalog Master</span>
-            <span style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 600 }}>{products.length} Products Active</span>
+            <span style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 600 }}>
+              {products.length} {isBengali ? "টি প্রোডাক্ট সক্রিয়" : "Products Active"}
+            </span>
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 800, color: "var(--text-main)", marginTop: 4, letterSpacing: "-0.5px" }}>
-            📦 প্রোডাক্ট ক্যাটালগ ও প্রাইজ লিস্ট
+            {isBengali ? "📦 প্রোডাক্ট ক্যাটালগ ও প্রাইজ লিস্ট" : "📦 Product Catalog & Price List"}
           </h1>
           <p style={{ color: "var(--text-muted)", fontSize: 13.5 }}>
-            দোকানের সকল পণ্য, বারকোড, ক্রয়মূল্য, বিক্রয়মূল্য ও ইনভেন্টরি স্টক পরিচালনা।
+            {isBengali
+              ? "দোকানের সকল পণ্য, বারকোড, ক্রয়মূল্য, বিক্রয়মূল্য ও ইনভেন্টরি স্টক পরিচালনা।"
+              : "Store item catalog, barcode indexing, cost prices, selling rates and stock management."}
           </p>
         </div>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           <Link href="/products/special-addons" className="btn-secondary">
             <IconSpecialAddons size={16} color="var(--primary)" />
-            <span>স্পেশাল অ্যাড-অন (ব্যাচ ও র্যাক)</span>
+            <span>{isBengali ? "স্পেশাল অ্যাড-অন (ব্যাচ ও র্যাক)" : "Special Add-ons (Batch & Rack)"}</span>
           </Link>
           <Link href="/products/barcode" className="btn-secondary">
             <IconPrint size={16} />
-            <span>বারকোড প্রিন্টার</span>
+            <span>{isBengali ? "বারকোড প্রিন্টার" : "Barcode Printer"}</span>
           </Link>
           <button onClick={handleExport} className="btn-secondary">
             <IconExport size={16} />
@@ -106,7 +112,7 @@ export default function ProductsPage() {
           </button>
           <Link href="/products/new" className="btn-primary">
             <IconPlus size={16} />
-            <span>নতুন প্রোডাক্ট যোগ করুন</span>
+            <span>{isBengali ? "নতুন প্রোডাক্ট যোগ করুন" : "Add New Product"}</span>
           </Link>
         </div>
       </div>
@@ -116,20 +122,24 @@ export default function ProductsPage() {
         <div className="stat-card" style={{ borderTop: "3px solid var(--primary)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
-              <span className="stat-card-title">মোট প্রোডাক্ট সংখ্যা</span>
-              <div className="stat-card-value" style={{ marginTop: 4 }}>{products.length} আইটেম</div>
+              <span className="stat-card-title">{isBengali ? "মোট প্রোডাক্ট সংখ্যা" : "Total Products"}</span>
+              <div className="stat-card-value" style={{ marginTop: 4 }}>
+                {products.length} {isBengali ? "আইটেম" : "Items"}
+              </div>
             </div>
             <div style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", background: "var(--primary-light)", display: "grid", placeItems: "center" }}>
               <IconProducts size={20} color="var(--primary)" />
             </div>
           </div>
-          <div className="stat-card-sub">অ্যাক্টিভ এসকেইউ ও বারকোড</div>
+          <div className="stat-card-sub">{isBengali ? "অ্যাক্টিভ এসকেইউ ও বারকোড" : "Active SKUs & barcodes"}</div>
         </div>
 
         <div className="stat-card" style={{ borderTop: "3px solid var(--success)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
-              <span className="stat-card-title">মোট মজুদ স্টক ভ্যালু (ক্রয়মূল্য)</span>
+              <span className="stat-card-title">
+                {isBengali ? "মোট মজুদ স্টক ভ্যালু (ক্রয়মূল্য)" : "Total Stock Valuation (Cost)"}
+              </span>
               <div className="stat-card-value" style={{ marginTop: 4, color: "var(--success-text)" }}>
                 {formatCurrency(totalStockValue)}
               </div>
@@ -138,22 +148,26 @@ export default function ProductsPage() {
               <span style={{ fontSize: 18, color: "var(--success)" }}>৳</span>
             </div>
           </div>
-          <div className="stat-card-sub">সম্ভাব্য বিক্রয় মূল্য: {formatCurrency(totalRetailValue)}</div>
+          <div className="stat-card-sub">
+            {isBengali ? "সম্ভাব্য বিক্রয় মূল্য:" : "Potential Retail Value:"} {formatCurrency(totalRetailValue)}
+          </div>
         </div>
 
         <div className="stat-card" style={{ borderTop: "3px solid var(--warning)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div>
-              <span className="stat-card-title">লো-স্টক সতর্কবার্তা</span>
+              <span className="stat-card-title">{isBengali ? "লো-স্টক সতর্কবার্তা" : "Low Stock Alerts"}</span>
               <div className="stat-card-value" style={{ marginTop: 4, color: "var(--warning-text)" }}>
-                {lowStockCount}টি আইটেম
+                {lowStockCount} {isBengali ? "টি আইটেম" : "Items"}
               </div>
             </div>
             <div style={{ width: 42, height: 42, borderRadius: "var(--radius-md)", background: "var(--warning-bg)", display: "grid", placeItems: "center" }}>
               <span style={{ fontSize: 18, color: "var(--warning)" }}>⚠️</span>
             </div>
           </div>
-          <div className="stat-card-sub">রি-অর্ডার পয়েন্টের নিচে নেমে গেছে</div>
+          <div className="stat-card-sub">
+            {isBengali ? "রি-অর্ডার পয়েন্টের নিচে নেমে গেছে" : "Below reorder threshold"}
+          </div>
         </div>
       </div>
 
@@ -191,7 +205,11 @@ export default function ProductsPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="🔍 প্রোডাক্টের নাম, SKU বা বারকোড খুঁজুন..."
+              placeholder={
+                isBengali
+                  ? "🔍 প্রোডাক্টের নাম, SKU বা বারকোড খুঁজুন..."
+                  : "🔍 Search product name, SKU or barcode..."
+              }
               style={{ width: "100%", border: "none", background: "transparent", fontSize: 13.5 }}
             />
           </div>
@@ -217,7 +235,7 @@ export default function ProductsPage() {
                 transition: "all var(--transition-fast)",
               }}
             >
-              {cat === "ALL" ? "সকল ক্যাটাগরি" : cat}
+              {cat === "ALL" ? (isBengali ? "সকল ক্যাটাগরি" : "All Categories") : cat}
             </button>
           ))}
         </div>
@@ -228,22 +246,22 @@ export default function ProductsPage() {
         <table className="erp-table">
           <thead>
             <tr>
-              <th>প্রোডাক্টের বিবরণ</th>
-              <th>SKU / বারকোড</th>
-              <th>ক্যাটাগরি</th>
-              <th>বর্তমান মজুদ (Stock)</th>
-              <th>ক্রয়মূল্য (Cost)</th>
-              <th>বিক্রয়মূল্য (MRP)</th>
-              <th>প্রফিট মার্জিন</th>
-              <th>স্ট্যাটাস</th>
-              <th style={{ textAlign: "right" }}>একশন</th>
+              <th>{isBengali ? "প্রোডাক্টের বিবরণ" : "Product Details"}</th>
+              <th>{isBengali ? "SKU / বারকোড" : "SKU / Barcode"}</th>
+              <th>{isBengali ? "ক্যাটাগরি" : "Category"}</th>
+              <th>{isBengali ? "বর্তমান মজুদ (Stock)" : "Stock Level"}</th>
+              <th>{isBengali ? "ক্রয়মূল্য (Cost)" : "Purchase Cost"}</th>
+              <th>{isBengali ? "বিক্রয়মূল্য (MRP)" : "Selling Price"}</th>
+              <th>{isBengali ? "প্রফিট মার্জিন" : "Profit Margin"}</th>
+              <th>{isBengali ? "স্ট্যাটাস" : "Status"}</th>
+              <th style={{ textAlign: "right" }}>{isBengali ? "একশন" : "Actions"}</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={9} style={{ textAlign: "center", padding: "36px 16px", color: "var(--text-muted)" }}>
-                  কোনো প্রোডাক্ট পাওয়া যায়নি।
+                  {isBengali ? "কোনো প্রোডাক্ট পাওয়া যায়নি।" : "No products found."}
                 </td>
               </tr>
             ) : (
@@ -289,7 +307,7 @@ export default function ProductsPage() {
                           href={`/products/barcode`}
                           className="btn-secondary"
                           style={{ padding: "4px 8px", fontSize: 12 }}
-                          title="Print Barcode Sticker"
+                          title={isBengali ? "বারকোড স্টিকার প্রিন্ট করুন" : "Print Barcode Sticker"}
                         >
                           <IconPrint size={13} />
                         </Link>
@@ -298,7 +316,7 @@ export default function ProductsPage() {
                           className="btn-secondary"
                           style={{ padding: "4px 8px", fontSize: 12 }}
                         >
-                          এডিট
+                          {isBengali ? "এডিট" : "Edit"}
                         </Link>
                       </div>
                     </td>

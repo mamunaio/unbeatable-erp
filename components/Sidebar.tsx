@@ -68,10 +68,16 @@ export function Sidebar() {
     <aside className="sidebar">
       <div className="brand-section">
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div className="brand-badge">U</div>
+          <div className="brand-badge">
+            <span style={{ color: "#ffffff", fontWeight: 900 }}>U</span>
+          </div>
           <div>
-            <div className="brand-title">{t("appName")}</div>
-            <div className="brand-subtitle">{t("appSubtitle")}</div>
+            <div className="brand-title">
+              {t("appName")}
+            </div>
+            <div className="brand-subtitle">
+              {t("appSubtitle")}
+            </div>
           </div>
         </div>
       </div>
@@ -91,7 +97,9 @@ export function Sidebar() {
               href={item.href}
               className={`nav-link ${item.isPos ? "pos-launch-btn" : ""} ${isActive ? "active" : ""}`}
             >
-              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-icon" style={{ color: isActive ? "#ffffff" : "inherit" }}>
+                {item.icon}
+              </span>
               <span>{t(item.dictKey, item.defaultLabel)}</span>
             </Link>
           );
@@ -105,7 +113,7 @@ export function Sidebar() {
             <strong style={{ display: "block", color: "#fff", fontSize: 13, textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {user?.branchName || "Main Branch"}
             </strong>
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>Role: {user?.role || "GUEST"}</span>
+            <span style={{ fontSize: 11, color: "#93c5fd" }}>Role: {user?.role || "GUEST"}</span>
           </div>
         </div>
       </div>

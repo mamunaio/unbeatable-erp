@@ -356,16 +356,16 @@ export default function PosPage() {
                 type="button"
                 onClick={() => setCategory(cat)}
                 style={{
-                  padding: "6px 14px",
+                  padding: "6px 15px",
                   borderRadius: "var(--radius-full)",
                   fontSize: 12.5,
                   fontWeight: 700,
                   border: "none",
                   cursor: "pointer",
                   whiteSpace: "nowrap",
-                  background: category === cat ? "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)" : "#1f2937",
-                  color: category === cat ? "#ffffff" : "#9ca3af",
-                  boxShadow: category === cat ? "0 2px 8px rgba(99, 102, 241, 0.4)" : "none",
+                  background: category === cat ? "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)" : "rgba(255, 255, 255, 0.05)",
+                  color: category === cat ? "#ffffff" : "#94a3b8",
+                  boxShadow: category === cat ? "0 0 15px rgba(168, 85, 247, 0.45)" : "none",
                   transition: "all var(--transition-fast)",
                 }}
               >
@@ -376,14 +376,14 @@ export default function PosPage() {
         </div>
 
         {/* Product Grid Area */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 20, background: "#0b0f19" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: 20, background: "#060a14" }}>
           {loadingProducts ? (
-            <div style={{ textAlign: "center", padding: 48, color: "#9ca3af" }}>
+            <div style={{ textAlign: "center", padding: 48, color: "#94a3b8" }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>⚡</div>
               <p>প্রোডাক্ট ক্যাটালগ লোড হচ্ছে...</p>
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 48, color: "#9ca3af" }}>
+            <div style={{ textAlign: "center", padding: 48, color: "#94a3b8" }}>
               <p style={{ fontSize: 16, fontWeight: 700 }}>কোনো পণ্য পাওয়া যায়নি!</p>
               <span style={{ fontSize: 13 }}>অন্য কোনো নাম বা বারকোড দিয়ে চেষ্টা করুন</span>
             </div>
@@ -403,8 +403,8 @@ export default function PosPage() {
                     key={p.id}
                     onClick={() => addToCart(p)}
                     style={{
-                      background: "#111827",
-                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      background: "rgba(17, 24, 39, 0.75)",
+                      border: "1px solid rgba(255, 255, 255, 0.09)",
                       borderRadius: "var(--radius-md)",
                       padding: "14px",
                       cursor: "pointer",
@@ -412,19 +412,20 @@ export default function PosPage() {
                       flexDirection: "column",
                       justifyContent: "space-between",
                       transition: "all var(--transition-fast)",
-                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.4)",
                       position: "relative",
                       overflow: "hidden",
+                      backdropFilter: "blur(12px)",
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = "translateY(-3px)";
-                      e.currentTarget.style.borderColor = "#6366f1";
-                      e.currentTarget.style.boxShadow = "0 10px 20px -5px rgba(99, 102, 241, 0.3)";
+                      e.currentTarget.style.borderColor = "rgba(168, 85, 247, 0.5)";
+                      e.currentTarget.style.boxShadow = "0 10px 25px -5px rgba(168, 85, 247, 0.35)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
-                      e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
+                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.09)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.4)";
                     }}
                   >
                     <div>
@@ -450,7 +451,7 @@ export default function PosPage() {
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255, 255, 255, 0.06)", paddingTop: 8 }}>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: "#10b981" }}>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: "#34d399" }}>
                         {formatCurrency(Number(p.sellingPrice))}
                       </div>
                       <div
@@ -458,12 +459,13 @@ export default function PosPage() {
                           width: 28,
                           height: 28,
                           borderRadius: "50%",
-                          background: "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+                          background: "linear-gradient(135deg, #06b6d4 0%, #6366f1 50%, #ec4899 100%)",
                           color: "#fff",
                           display: "grid",
                           placeItems: "center",
                           fontSize: 14,
-                          fontWeight: 700,
+                          fontWeight: 800,
+                          boxShadow: "0 0 10px rgba(168, 85, 247, 0.4)",
                         }}
                       >
                         ＋
@@ -639,8 +641,8 @@ export default function PosPage() {
           {/* Glowing Grand Total Billboard */}
           <div
             style={{
-              background: "linear-gradient(135deg, #064e3b 0%, #022c22 100%)",
-              border: "1px solid #059669",
+              background: "linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.15) 100%)",
+              border: "1px solid rgba(99, 102, 241, 0.45)",
               borderRadius: "var(--radius-md)",
               padding: "14px 18px",
               marginTop: 10,
@@ -648,18 +650,18 @@ export default function PosPage() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              boxShadow: "0 0 20px rgba(16, 185, 129, 0.25)",
+              boxShadow: "0 0 25px rgba(99, 102, 241, 0.3)",
             }}
           >
             <div>
-              <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, color: "#a7f3d0" }}>
+              <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, color: "#c7d2fe" }}>
                 GRAND TOTAL
               </span>
-              <div style={{ fontSize: 26, fontWeight: 900, color: "#34d399", letterSpacing: "-0.5px" }}>
+              <div style={{ fontSize: 26, fontWeight: 900, color: "#ffffff", letterSpacing: "-0.5px" }}>
                 {formatCurrency(grandTotal)}
               </div>
             </div>
-            <span className="badge badge-success" style={{ fontSize: 12, padding: "4px 8px" }}>
+            <span className="badge" style={{ fontSize: 12, padding: "4px 8px", background: "rgba(99, 102, 241, 0.3)", color: "#ffffff", border: "1px solid rgba(255, 255, 255, 0.2)" }}>
               F8: Pay
             </span>
           </div>
@@ -691,7 +693,7 @@ export default function PosPage() {
                 padding: "12px",
                 borderRadius: "var(--radius-md)",
                 border: "none",
-                background: cart.length === 0 ? "#4b5563" : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                background: cart.length === 0 ? "#4b5563" : "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)",
                 color: "#ffffff",
                 fontWeight: 800,
                 fontSize: 15,
@@ -700,7 +702,7 @@ export default function PosPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 8,
-                boxShadow: cart.length > 0 ? "0 4px 16px rgba(16, 185, 129, 0.45)" : "none",
+                boxShadow: cart.length > 0 ? "0 4px 18px rgba(168, 85, 247, 0.45)" : "none",
               }}
             >
               <IconPos size={18} />
@@ -857,7 +859,7 @@ export default function PosPage() {
                 disabled={submitting}
                 onClick={completeSale}
                 className="btn-primary"
-                style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", padding: "12px 24px", fontSize: 15 }}
+                style={{ background: "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)", padding: "12px 24px", fontSize: 15, boxShadow: "0 4px 18px rgba(168, 85, 247, 0.45)" }}
               >
                 {submitting ? "প্রসেসিং..." : "✓ পেমেন্ট কনফার্ম ও প্রিন্ট"}
               </button>

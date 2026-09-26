@@ -32,7 +32,7 @@ export default function LoginPage() {
       <div style={{ width: "100%", maxWidth: 480, background: "#ffffff", borderRadius: 20, padding: 36, boxShadow: "var(--shadow-pos)" }}>
         {/* Brand */}
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ width: 50, height: 50, background: "linear-gradient(135deg, #6366f1, #4338ca)", color: "#fff", fontWeight: 800, fontSize: 26, borderRadius: 12, display: "grid", placeItems: "center", margin: "0 auto 12px" }}>
+          <div style={{ width: 52, height: 52, background: "var(--aurora-gradient)", color: "#fff", fontWeight: 800, fontSize: 26, borderRadius: 14, display: "grid", placeItems: "center", margin: "0 auto 12px", boxShadow: "var(--aurora-glow)", border: "1px solid rgba(255, 255, 255, 0.3)" }}>
             U
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: "#0f172a" }}>Unbeatable ERP</h1>

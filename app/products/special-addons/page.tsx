@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/lib/formatters";
 import { exportToCsv } from "@/lib/export";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface CosmeticBatchItem {
   id: string;
@@ -47,6 +48,7 @@ const initialHardwareItems: HardwareRackItem[] = [
 ];
 
 export default function SpecialAddonsPage() {
+  const { isBengali } = useLanguage();
   const [activeTab, setActiveTab] = useState<"COSMETICS" | "HARDWARE">("COSMETICS");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -88,16 +90,35 @@ export default function SpecialAddonsPage() {
     const exp = new Date(expiryDateStr);
     const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 3600 * 24));
 
-    if (diffDays <= 0) return { label: "মেয়াদোত্তীর্ণ (Expired)", tone: "badge-danger", urgent: true, days: diffDays };
-    if (diffDays <= 30) return { label: `মেয়াদ শেষ হবে (${diffDays} দিন বাকি)`, tone: "badge-warning", urgent: true, days: diffDays };
-    return { label: `বৈধ (${diffDays} দিন বাকি)`, tone: "badge-success", urgent: false, days: diffDays };
+    if (diffDays <= 0) {
+      return {
+        label: isBengali ? "মেয়াদোত্তীর্ণ (Expired)" : "Expired",
+        tone: "badge-danger",
+        urgent: true,
+        days: diffDays,
+      };
+    }
+    if (diffDays <= 30) {
+      return {
+        label: isBengali ? `মেয়াদ শেষ হবে (${diffDays} দিন বাকি)` : `Expiring in ${diffDays} days`,
+        tone: "badge-warning",
+        urgent: true,
+        days: diffDays,
+      };
+    }
+    return {
+      label: isBengali ? `বৈধ (${diffDays} দিন বাকি)` : `Valid (${diffDays} days left)`,
+      tone: "badge-success",
+      urgent: false,
+      days: diffDays,
+    };
   };
 
   // Add Cosmetic Batch
   const handleAddCosmetic = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCosmetic.name || !newCosmetic.batchNo || !newCosmetic.expiryDate) {
-      alert("অনুগ্রহ করে পণ্যের নাম, ব্যাচ নম্বর এবং মেয়াদোত্তীর্ণের তারিখ পূরণ করুন!");
+      alert(isBengali ? "অনুগ্রহ করে পণ্যের নাম, ব্যাচ নম্বর এবং মেয়াদোত্তীর্ণের তারিখ পূরণ করুন!" : "Please enter product name, batch lot no, and expiry date!");
       return;
     }
 
@@ -133,7 +154,7 @@ export default function SpecialAddonsPage() {
   const handleAddHardware = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newHardware.name || !newHardware.rackLocation) {
-      alert("অনুগ্রহ করে পণ্যের নাম এবং র্যাক লোকেশন উল্লেখ করুন!");
+      alert(isBengali ? "অনুগ্রহ করে পণ্যের নাম এবং র্যাক লোকেশন উল্লেখ করুন!" : "Please enter item name and rack location!");
       return;
     }
 
@@ -165,15 +186,15 @@ export default function SpecialAddonsPage() {
     exportToCsv({
       filename: "Cosmetics_Batch_Expiry_Report",
       headers: [
-        { key: "name", label: "Product Name" },
+        { key: "name", label: isBengali ? "প্রোডাক্টের নাম" : "Product Name" },
         { key: "sku", label: "SKU" },
-        { key: "batchNo", label: "Batch Lot No" },
-        { key: "shade", label: "Shade / Tone" },
-        { key: "expiryDate", label: "Expiry Date" },
-        { key: "stock", label: "Sellable Stock" },
-        { key: "sampleTesterCount", label: "Testers Count" },
-        { key: "originalPrice", label: "Regular Price" },
-        { key: "autoDiscountPercent", label: "Near-Expiry Discount %" },
+        { key: "batchNo", label: isBengali ? "ব্যাচ / লট নম্বর" : "Batch Lot No" },
+        { key: "shade", label: isBengali ? "শেড / কালার টোন" : "Shade / Tone" },
+        { key: "expiryDate", label: isBengali ? "মেয়াদোত্তীর্ণের তারিখ" : "Expiry Date" },
+        { key: "stock", label: isBengali ? "বিক্রয়যোগ্য স্টক" : "Sellable Stock" },
+        { key: "sampleTesterCount", label: isBengali ? "টেস্টার সংখ্যা" : "Testers Count" },
+        { key: "originalPrice", label: isBengali ? "মূল্য (BDT)" : "Regular Price (BDT)" },
+        { key: "autoDiscountPercent", label: isBengali ? "অটো-ছাড় %" : "Near-Expiry Discount %" },
       ],
       data: cosmeticBatches,
     });
@@ -183,13 +204,13 @@ export default function SpecialAddonsPage() {
     exportToCsv({
       filename: "Hardware_Rack_Location_Pricing",
       headers: [
-        { key: "name", label: "Item Name" },
+        { key: "name", label: isBengali ? "পণ্যের নাম" : "Item Name" },
         { key: "sku", label: "SKU" },
-        { key: "rackLocation", label: "Rack / Bin Location" },
-        { key: "unitType", label: "Unit of Measurement" },
-        { key: "pricePerUnit", label: "Unit Rate (BDT)" },
-        { key: "stockInUnits", label: "Available Units" },
-        { key: "bulkTierPrice", label: "Wholesale Tier" },
+        { key: "rackLocation", label: isBengali ? "র্যাক / বিন লোকেশন" : "Rack / Bin Location" },
+        { key: "unitType", label: isBengali ? "একক" : "Unit" },
+        { key: "pricePerUnit", label: isBengali ? "একক রেট (BDT)" : "Unit Rate (BDT)" },
+        { key: "stockInUnits", label: isBengali ? "মজুদ একক" : "Available Units" },
+        { key: "bulkTierPrice", label: isBengali ? "পাইকারি মূল্য অফার" : "Wholesale Tier" },
       ],
       data: hardwareItems,
     });
@@ -221,11 +242,15 @@ export default function SpecialAddonsPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 16 }}>
         <div>
           <Link href="/products" style={{ fontSize: 13, color: "var(--primary)", fontWeight: 600 }}>
-            ← প্রোডাক্ট ক্যাটালগে ফিরে যান
+            {isBengali ? "← প্রোডাক্ট ক্যাটালগে ফিরে যান" : "← Back to Products Catalog"}
           </Link>
-          <h1 style={{ fontSize: 24, fontWeight: 800, marginTop: 4 }}>🔬 বিশেষায়িত শপ মডিউল (Vertical Industry Add-ons)</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, marginTop: 4 }}>
+            {isBengali ? "🔬 বিশেষায়িত শপ মডিউল (Vertical Industry Add-ons)" : "🔬 Special Industry Add-ons (Vertical Modules)"}
+          </h1>
           <p style={{ color: "var(--text-muted)", fontSize: 14 }}>
-            কসমেটিকস ও ফার্মাসির ব্যাচ/মেয়াদ ট্র্যাকিং এবং হার্ডওয়্যার ও পেইন্টস দোকানের র্যাক/বিন ও ফ্র্যাকশনাল পরিমাপক ইঞ্জিন।
+            {isBengali
+              ? "কসমেটিকস ও ফার্মাসির ব্যাচ/মেয়াদ ট্র্যাকিং এবং হার্ডওয়্যার ও পেইন্টস দোকানের র্যাক/বিন ও ফ্র্যাকশনাল পরিমাপক ইঞ্জিন।"
+              : "Batch & expiry tracking for cosmetics & pharmacy, plus rack/bin locations & fractional measurement for hardware & paints."}
           </p>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
@@ -234,11 +259,11 @@ export default function SpecialAddonsPage() {
           </button>
           {activeTab === "COSMETICS" ? (
             <button onClick={() => setShowCosmeticModal(true)} className="btn-primary">
-              ＋ নতুন ব্যাচ / লট যোগ করুন
+              {isBengali ? "＋ নতুন ব্যাচ / লট যোগ করুন" : "＋ Add Batch / Lot"}
             </button>
           ) : (
             <button onClick={() => setShowHardwareModal(true)} className="btn-primary">
-              ＋ নতুন র্যাক ও আইটেম যোগ করুন
+              {isBengali ? "＋ নতুন র্যাক ও আইটেম যোগ করুন" : "＋ Add Rack & Item"}
             </button>
           )}
         </div>
@@ -263,7 +288,9 @@ export default function SpecialAddonsPage() {
             transition: "all 0.15s ease",
           }}
         >
-          💄 কসমেটিকস ও ফার্মাসি (ব্যাচ, শেড ও মেয়াদোত্তীর্ণ ট্র্যাকার)
+          {isBengali
+            ? "💄 কসমেটিকস ও ফার্মাসি (ব্যাচ, শেড ও মেয়াদোত্তীর্ণ ট্র্যাকার)"
+            : "💄 Cosmetics & Pharmacy (Batch, Shade & Expiry Tracker)"}
         </button>
 
         <button
@@ -283,7 +310,9 @@ export default function SpecialAddonsPage() {
             transition: "all 0.15s ease",
           }}
         >
-          🔧 হার্ডওয়্যার ও পেইন্টস (র্যাক/বিন লোকেশন ও ওজন/দৈর্ঘ্য ক্যালকুলেটর)
+          {isBengali
+            ? "🔧 হার্ডওয়্যার ও পেইন্টস (র্যাক/বিন লোকেশন ও ওজন/দৈর্ঘ্য ক্যালকুলেটর)"
+            : "🔧 Hardware & Paints (Rack/Bin Location & Calculator)"}
         </button>
       </div>
 
@@ -294,8 +323,12 @@ export default function SpecialAddonsPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={
             activeTab === "COSMETICS"
-              ? "🔍 পণ্যের নাম, ব্যাচ নম্বর (LOT) বা শেড দিয়ে খুঁজুন..."
-              : "🔍 হার্ডওয়্যার আইটেম বা র্যাক লোকেশন (যেমন: Rack B-04) দিয়ে খুঁজুন..."
+              ? isBengali
+                ? "🔍 পণ্যের নাম, ব্যাচ নম্বর (LOT) বা শেড দিয়ে খুঁজুন..."
+                : "🔍 Search by product name, batch (LOT) or shade..."
+              : isBengali
+                ? "🔍 হার্ডওয়্যার আইটেম বা র্যাক লোকেশন (যেমন: Rack B-04) দিয়ে খুঁজুন..."
+                : "🔍 Search hardware item or rack location (e.g. Rack B-04)..."
           }
           style={{
             width: "100%",
@@ -314,23 +347,28 @@ export default function SpecialAddonsPage() {
           {/* Quick Metrics */}
           <div className="stat-grid" style={{ marginBottom: 24 }}>
             <div className="stat-card">
-              <span className="stat-card-title">মোট ট্র্যাকিং ব্যাচ</span>
-              <div className="stat-card-value">{cosmeticBatches.length}টি লট</div>
-              <div className="stat-card-sub">লট/ব্যাচ নাম্বার সক্রিয়</div>
-            </div>
-            <div className="stat-card">
-              <span className="stat-card-title">দ্রুত মেয়াদ শেষ হবে (&lt; ৩০ দিন)</span>
-              <div className="stat-card-value" style={{ color: "var(--danger)" }}>
-                {expiringCosmeticsCount}টি ব্যাচ
-              </div>
-              <div className="stat-card-sub">অটোমেটিক স্পেশাল ছাড় সক্রিয়</div>
-            </div>
-            <div className="stat-card">
-              <span className="stat-card-title">স্যাম্পল / টেস্টার সংখ্যা</span>
+              <span className="stat-card-title">{isBengali ? "মোট ট্র্যাকিং ব্যাচ" : "Total Tracked Batches"}</span>
               <div className="stat-card-value">
-                {cosmeticBatches.reduce((acc, curr) => acc + curr.sampleTesterCount, 0)}টি টেস্টার
+                {isBengali ? `${cosmeticBatches.length}টি লট` : `${cosmeticBatches.length} Lots`}
               </div>
-              <div className="stat-card-sub">কাস্টমার ট্রায়াল স্টক সেপারেট</div>
+              <div className="stat-card-sub">{isBengali ? "লট/ব্যাচ নাম্বার সক্রিয়" : "Active batch lots"}</div>
+            </div>
+            <div className="stat-card">
+              <span className="stat-card-title">
+                {isBengali ? "দ্রুত মেয়াদ শেষ হবে (< ৩০ দিন)" : "Expiring Soon (< 30 Days)"}
+              </span>
+              <div className="stat-card-value" style={{ color: "var(--danger)" }}>
+                {isBengali ? `${expiringCosmeticsCount}টি ব্যাচ` : `${expiringCosmeticsCount} Batches`}
+              </div>
+              <div className="stat-card-sub">{isBengali ? "অটোমেটিক স্পেশাল ছাড় সক্রিয়" : "Auto near-expiry discount active"}</div>
+            </div>
+            <div className="stat-card">
+              <span className="stat-card-title">{isBengali ? "স্যাম্পল / টেস্টার সংখ্যা" : "Sample & Tester Stock"}</span>
+              <div className="stat-card-value">
+                {cosmeticBatches.reduce((acc, curr) => acc + curr.sampleTesterCount, 0)}{" "}
+                {isBengali ? "টি টেস্টার" : "Testers"}
+              </div>
+              <div className="stat-card-sub">{isBengali ? "কাস্টমার ট্রায়াল স্টক সেপারেট" : "Separated customer trial stock"}</div>
             </div>
           </div>
 
@@ -347,9 +385,13 @@ export default function SpecialAddonsPage() {
               }}
             >
               <div>
-                <h2 style={{ fontSize: 16, fontWeight: 700 }}>ব্যাচ, শেড ও এক্সপায়ারি ট্র্যাকিং তালিকা</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 700 }}>
+                  {isBengali ? "ব্যাচ, শেড ও এক্সপায়ারি ট্র্যাকিং তালিকা" : "Batch, Shade & Expiry Tracking Register"}
+                </h2>
                 <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  FEFO (First Expired First Out) ইনভেন্টরি নিয়ম অনুযায়ী বিক্রয় সুপারিশ করা হয়।
+                  {isBengali
+                    ? "FEFO (First Expired First Out) ইনভেন্টরি নিয়ম অনুযায়ী বিক্রয় সুপারিশ করা হয়।"
+                    : "FEFO (First Expired First Out) inventory rule recommended for dispatch."}
                 </span>
               </div>
               <span className="badge badge-warning">Near-Expiry Auto-Discount Engine Active</span>
@@ -358,13 +400,13 @@ export default function SpecialAddonsPage() {
             <table className="erp-table">
               <thead>
                 <tr>
-                  <th>প্রোডাক্টের নাম</th>
-                  <th>ব্যাচ / লট নম্বর</th>
-                  <th>শেড / কালার টোন</th>
-                  <th>মেয়াদোত্তীর্ণের তারিখ</th>
-                  <th>স্টক ও স্যাম্পল</th>
-                  <th>মূল্য ও অটো-ছাড়</th>
-                  <th>মেয়াদ স্ট্যাটাস</th>
+                  <th>{isBengali ? "প্রোডাক্টের নাম" : "Product Name"}</th>
+                  <th>{isBengali ? "ব্যাচ / লট নম্বর" : "Batch / Lot No"}</th>
+                  <th>{isBengali ? "শেড / কালার টোন" : "Shade / Color Tone"}</th>
+                  <th>{isBengali ? "মেয়াদোত্তীর্ণের তারিখ" : "Expiry Date"}</th>
+                  <th>{isBengali ? "স্টক ও স্যাম্পল" : "Stock & Samples"}</th>
+                  <th>{isBengali ? "মূল্য ও অটো-ছাড়" : "Price & Discount"}</th>
+                  <th>{isBengali ? "মেয়াদ স্ট্যাটাস" : "Expiry Status"}</th>
                 </tr>
               </thead>
               <tbody>
@@ -391,9 +433,9 @@ export default function SpecialAddonsPage() {
                         <strong>{formatDate(item.expiryDate)}</strong>
                       </td>
                       <td>
-                        <strong>{item.stock} বিক্রয়যোগ্য</strong>
+                        <strong>{item.stock} {isBengali ? "বিক্রয়যোগ্য" : "Available"}</strong>
                         <span style={{ fontSize: 11, color: "var(--text-muted)", display: "block" }}>
-                          ({item.sampleTesterCount}টি টেস্টার)
+                          ({item.sampleTesterCount} {isBengali ? "টি টেস্টার" : "Testers"})
                         </span>
                       </td>
                       <td>
@@ -429,9 +471,15 @@ export default function SpecialAddonsPage() {
           <div className="card" style={{ marginBottom: 24, background: "var(--bg-subtle)", border: "1.5px solid var(--border-color)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 10 }}>
               <div>
-                <h2 style={{ fontSize: 16, fontWeight: 800 }}>📐 ফ্র্যাকশনাল কাটিং ও ওজন পরিমাপক ক্যালকুলেটর (Variable Billing Engine)</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 800 }}>
+                  {isBengali
+                    ? "📐 ফ্র্যাকশনাল কাটিং ও ওজন পরিমাপক ক্যালকুলেটর (Variable Billing Engine)"
+                    : "📐 Fractional Cutting & Weight Calculator (Variable Billing Engine)"}
+                </h2>
                 <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                  পাইপ, রড, তার বা রঙের কাস্টম পরিমাপ দিয়ে তাৎক্ষণিক বিল রেট হিসাব করুন।
+                  {isBengali
+                    ? "পাইপ, রড, তার বা রঙের কাস্টম পরিমাপ দিয়ে তাৎক্ষণিক বিল রেট হিসাব করুন।"
+                    : "Instantly calculate billing totals for custom lengths, cuts and weights of pipes, rods, wires, or paints."}
                 </p>
               </div>
               <div style={{ display: "flex", gap: 6 }}>
@@ -463,23 +511,23 @@ export default function SpecialAddonsPage() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1.2fr", gap: 16, alignItems: "center" }}>
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
-                  পরিমাপের একক (Unit)
+                  {isBengali ? "পরিমাপের একক (Unit)" : "Measurement Unit"}
                 </label>
                 <select
                   value={calcUnit}
                   onChange={(e) => setCalcUnit(e.target.value)}
                   style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)", background: "#fff", fontWeight: 700 }}
                 >
-                  <option value="FEET">FEET (ফুট)</option>
-                  <option value="METER">METER (মিটার)</option>
-                  <option value="KG">KG (কেজি)</option>
-                  <option value="PIECE">PIECE (পিস)</option>
+                  <option value="FEET">{isBengali ? "FEET (ফুট)" : "FEET (ft)"}</option>
+                  <option value="METER">{isBengali ? "METER (মিটার)" : "METER (m)"}</option>
+                  <option value="KG">{isBengali ? "KG (কেজি)" : "KG (kg)"}</option>
+                  <option value="PIECE">{isBengali ? "PIECE (পিস)" : "PIECE (pcs)"}</option>
                 </select>
               </div>
 
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
-                  পরিমাণ / দৈর্ঘ্য / ওজন
+                  {isBengali ? "পরিমাণ / দৈর্ঘ্য / ওজন" : "Quantity / Length / Weight"}
                 </label>
                 <input
                   type="number"
@@ -493,7 +541,7 @@ export default function SpecialAddonsPage() {
 
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
-                  প্রতি একক রেট (৳ / {calcUnit})
+                  {isBengali ? `প্রতি একক রেট (৳ / ${calcUnit})` : `Rate Per Unit (৳ / ${calcUnit})`}
                 </label>
                 <input
                   type="number"
@@ -506,7 +554,9 @@ export default function SpecialAddonsPage() {
 
               <div style={{ background: "#fff", padding: "12px 18px", borderRadius: 8, border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
                 <span style={{ fontSize: 11, color: "var(--text-muted)", display: "block", textTransform: "uppercase", fontWeight: 700 }}>
-                  হিসাবকৃত প্রদেয় মূল্য ({calcQty} {calcUnit} × {formatCurrency(calcRate)})
+                  {isBengali
+                    ? `হিসাবকৃত প্রদেয় মূল্য (${calcQty} ${calcUnit} × ${formatCurrency(calcRate)})`
+                    : `Calculated Total (${calcQty} ${calcUnit} × ${formatCurrency(calcRate)})`}
                 </span>
                 <strong style={{ fontSize: 22, color: "var(--primary)", display: "block", marginTop: 2 }}>
                   {formatCurrency(calcQty * calcRate)}
@@ -528,9 +578,15 @@ export default function SpecialAddonsPage() {
               }}
             >
               <div>
-                <h2 style={{ fontSize: 16, fontWeight: 700 }}>র্যাক ও তাক লোকেশন ইনডেক্স এবং পাইকারি টায়ার প্রাইসিং</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 700 }}>
+                  {isBengali
+                    ? "র্যাক ও তাক লোকেশন ইনডেক্স এবং পাইকারি টায়ার প্রাইসিং"
+                    : "Rack & Bin Location Index & Wholesale Tier Pricing"}
+                </h2>
                 <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  সেলসম্যান দ্রুত র্যাক কোড দেখে গোডাউন বা ডিসপ্লে থেকে পণ্য খুঁজে বের করতে পারবেন।
+                  {isBengali
+                    ? "সেলসম্যান দ্রুত র্যাক কোড দেখে গোডাউন বা ডিসপ্লে থেকে পণ্য খুঁজে বের করতে পারবেন।"
+                    : "Staff can quickly locate items in godown/display using rack codes."}
                 </span>
               </div>
               <span className="badge badge-primary">Rack / Bin Indexed</span>
@@ -539,13 +595,13 @@ export default function SpecialAddonsPage() {
             <table className="erp-table">
               <thead>
                 <tr>
-                  <th>পণ্যের নাম</th>
+                  <th>{isBengali ? "পণ্যের নাম" : "Item Name"}</th>
                   <th>SKU</th>
-                  <th>র্যাক ও তাক লোকেশন (Rack/Bin)</th>
-                  <th>একক টাইপ</th>
-                  <th>খুচরা রেট</th>
-                  <th>বর্তমান স্টক</th>
-                  <th>পাইকারি মূল্য টায়ার (Bulk Discount)</th>
+                  <th>{isBengali ? "র্যাক ও তাক লোকেশন (Rack/Bin)" : "Rack / Bin Location"}</th>
+                  <th>{isBengali ? "একক টাইপ" : "Unit Type"}</th>
+                  <th>{isBengali ? "খুচরা রেট" : "Retail Rate"}</th>
+                  <th>{isBengali ? "বর্তমান স্টক" : "Current Stock"}</th>
+                  <th>{isBengali ? "পাইকারি মূল্য টায়ার (Bulk Discount)" : "Wholesale Tier (Bulk Discount)"}</th>
                 </tr>
               </thead>
               <tbody>
@@ -595,7 +651,9 @@ export default function SpecialAddonsPage() {
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: 520 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800 }}>💄 নতুন কসমেটিকস ব্যাচ / লট যোগ করুন</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 800 }}>
+                {isBengali ? "💄 নতুন কসমেটিকস ব্যাচ / লট যোগ করুন" : "💄 Add New Cosmetic Batch / Lot"}
+              </h2>
               <button onClick={() => setShowCosmeticModal(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer" }}>
                 ✕
               </button>
@@ -603,10 +661,12 @@ export default function SpecialAddonsPage() {
 
             <form onSubmit={handleAddCosmetic} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>পণ্যের নাম *</label>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                  {isBengali ? "পণ্যের নাম *" : "Product Name *"}
+                </label>
                 <input
                   required
-                  placeholder="যেমন: Maybelline SuperStay Matte Ink"
+                  placeholder={isBengali ? "যেমন: Maybelline SuperStay Matte Ink" : "e.g. Maybelline SuperStay Matte Ink"}
                   value={newCosmetic.name}
                   onChange={(e) => setNewCosmetic({ ...newCosmetic, name: e.target.value })}
                   style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)" }}
@@ -615,19 +675,23 @@ export default function SpecialAddonsPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>লট / ব্যাচ নং *</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "লট / ব্যাচ নং *" : "Lot / Batch No *"}
+                  </label>
                   <input
                     required
-                    placeholder="যেমন: LOT-2026-11C"
+                    placeholder={isBengali ? "যেমন: LOT-2026-11C" : "e.g. LOT-2026-11C"}
                     value={newCosmetic.batchNo}
                     onChange={(e) => setNewCosmetic({ ...newCosmetic, batchNo: e.target.value })}
                     style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)" }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>শেড / কালার টোন</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "শেড / কালার টোন" : "Shade / Tone"}
+                  </label>
                   <input
-                    placeholder="যেমন: Shade 115 / Natural"
+                    placeholder={isBengali ? "যেমন: Shade 115 / Natural" : "e.g. Shade 115 / Natural"}
                     value={newCosmetic.shade}
                     onChange={(e) => setNewCosmetic({ ...newCosmetic, shade: e.target.value })}
                     style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)" }}
@@ -637,7 +701,9 @@ export default function SpecialAddonsPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>মেয়াদোত্তীর্ণের তারিখ *</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "মেয়াদোত্তীর্ণের তারিখ *" : "Expiry Date *"}
+                  </label>
                   <input
                     type="date"
                     required
@@ -647,7 +713,9 @@ export default function SpecialAddonsPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>মূল বিক্রয়মূল্য (৳)</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "মূল বিক্রয়মূল্য (৳)" : "Regular Selling Price (৳)"}
+                  </label>
                   <input
                     type="number"
                     min="1"
@@ -660,7 +728,9 @@ export default function SpecialAddonsPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>বিক্রয়যোগ্য স্টক</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "বিক্রয়যোগ্য স্টক" : "Sellable Stock"}
+                  </label>
                   <input
                     type="number"
                     min="1"
@@ -670,7 +740,9 @@ export default function SpecialAddonsPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>টেস্টার / স্যাম্পল</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "টেস্টার / স্যাম্পল" : "Testers / Samples"}
+                  </label>
                   <input
                     type="number"
                     min="0"
@@ -680,7 +752,9 @@ export default function SpecialAddonsPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>অটো-ছাড় %</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "অটো-ছাড় %" : "Auto Discount %"}
+                  </label>
                   <input
                     type="number"
                     min="0"
@@ -694,10 +768,10 @@ export default function SpecialAddonsPage() {
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
                 <button type="button" onClick={() => setShowCosmeticModal(false)} className="btn-secondary">
-                  বাতিল
+                  {isBengali ? "বাতিল" : "Cancel"}
                 </button>
                 <button type="submit" className="btn-primary">
-                  সংরক্ষণ করুন
+                  {isBengali ? "সংরক্ষণ করুন" : "Save Batch"}
                 </button>
               </div>
             </form>
@@ -710,7 +784,9 @@ export default function SpecialAddonsPage() {
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: 520 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800 }}>🔧 নতুন হার্ডওয়্যার পণ্য ও র্যাক লোকেশন যোগ করুন</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 800 }}>
+                {isBengali ? "🔧 নতুন হার্ডওয়্যার পণ্য ও র্যাক লোকেশন যোগ করুন" : "🔧 Add Hardware Item & Rack Location"}
+              </h2>
               <button onClick={() => setShowHardwareModal(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer" }}>
                 ✕
               </button>
@@ -718,10 +794,12 @@ export default function SpecialAddonsPage() {
 
             <form onSubmit={handleAddHardware} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>পণ্যের নাম *</label>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                  {isBengali ? "পণ্যের নাম *" : "Product Name *"}
+                </label>
                 <input
                   required
-                  placeholder="যেমন: BSRM 12mm Rebar Steel Rod"
+                  placeholder={isBengali ? "যেমন: BSRM 12mm Rebar Steel Rod" : "e.g. BSRM 12mm Rebar Steel Rod"}
                   value={newHardware.name}
                   onChange={(e) => setNewHardware({ ...newHardware, name: e.target.value })}
                   style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)" }}
@@ -730,33 +808,39 @@ export default function SpecialAddonsPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>র্যাক ও তাক লোকেশন (Rack/Bin) *</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "র্যাক ও তাক লোকেশন (Rack/Bin) *" : "Rack / Bin Location *"}
+                  </label>
                   <input
                     required
-                    placeholder="যেমন: Rack C-02, Bay 4"
+                    placeholder={isBengali ? "যেমন: Rack C-02, Bay 4" : "e.g. Rack C-02, Bay 4"}
                     value={newHardware.rackLocation}
                     onChange={(e) => setNewHardware({ ...newHardware, rackLocation: e.target.value })}
                     style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)" }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>পরিমাপের একক (Unit)</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "পরিমাপের একক (Unit)" : "Measurement Unit"}
+                  </label>
                   <select
                     value={newHardware.unitType}
                     onChange={(e) => setNewHardware({ ...newHardware, unitType: e.target.value as any })}
                     style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)" }}
                   >
-                    <option value="KG">কেজি (KG)</option>
-                    <option value="FEET">ফুট (FEET)</option>
-                    <option value="METER">মিটার (METER)</option>
-                    <option value="PIECE">পিস (PIECE)</option>
+                    <option value="KG">{isBengali ? "কেজি (KG)" : "Kilogram (KG)"}</option>
+                    <option value="FEET">{isBengali ? "ফুট (FEET)" : "Feet (FEET)"}</option>
+                    <option value="METER">{isBengali ? "মিটার (METER)" : "Meter (METER)"}</option>
+                    <option value="PIECE">{isBengali ? "পিস (PIECE)" : "Piece (PIECE)"}</option>
                   </select>
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>প্রতি একক রেট (৳)</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "প্রতি একক রেট (৳)" : "Rate Per Unit (৳)"}
+                  </label>
                   <input
                     type="number"
                     min="0.5"
@@ -767,7 +851,9 @@ export default function SpecialAddonsPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>মোট প্রারম্ভিক স্টক</label>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                    {isBengali ? "মোট প্রারম্ভিক স্টক" : "Initial Stock Units"}
+                  </label>
                   <input
                     type="number"
                     min="1"
@@ -779,9 +865,11 @@ export default function SpecialAddonsPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>পাইকারি টায়ার মূল্য অফার (Wholesale Tier)</label>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+                  {isBengali ? "পাইকারি টায়ার মূল্য অফার (Wholesale Tier)" : "Wholesale Bulk Tier Pricing"}
+                </label>
                 <input
-                  placeholder="যেমন: 50kg+: ৳125/kg, 100kg+: ৳120/kg"
+                  placeholder={isBengali ? "যেমন: 50kg+: ৳125/kg, 100kg+: ৳120/kg" : "e.g. 50kg+: ৳125/kg, 100kg+: ৳120/kg"}
                   value={newHardware.bulkTierPrice}
                   onChange={(e) => setNewHardware({ ...newHardware, bulkTierPrice: e.target.value })}
                   style={{ width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border-color)" }}
@@ -790,10 +878,10 @@ export default function SpecialAddonsPage() {
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
                 <button type="button" onClick={() => setShowHardwareModal(false)} className="btn-secondary">
-                  বাতিল
+                  {isBengali ? "বাতিল" : "Cancel"}
                 </button>
                 <button type="submit" className="btn-primary">
-                  সংরক্ষণ করুন
+                  {isBengali ? "সংরক্ষণ করুন" : "Save Item"}
                 </button>
               </div>
             </form>
