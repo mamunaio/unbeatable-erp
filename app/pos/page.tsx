@@ -5,6 +5,16 @@ import Link from "next/link";
 import { formatCurrency } from "@/lib/formatters";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import {
+  IconPos,
+  IconSearch,
+  IconTrash,
+  IconCheck,
+  IconPrint,
+  IconPlus,
+  IconCustomers,
+  IconProducts,
+} from "@/components/Icons";
 
 interface CartItem {
   id: string;
@@ -43,6 +53,13 @@ export default function PosPage() {
   const [submitting, setSubmitting] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(true);
 
+  // Customer state in POS
+  const [selectedCustomer, setSelectedCustomer] = useState<{ name: string; phone: string; points: number }>({
+    name: "Walk-in Customer",
+    phone: "01700000000",
+    points: 0,
+  });
+
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch live products from DB
@@ -54,12 +71,12 @@ export default function PosPage() {
       if (json.success && json.data && json.data.length > 0) {
         setProducts(json.data);
       } else {
-        // Fallback demo data if DB is not yet seeded
+        // Fallback demo data
         setProducts([
-          { id: "p1", name: "Miniket Rice 25kg", sku: "RICE-MIN-25", barcode: "89411001", category: { name: "Grocery" }, sellingPrice: 1850, purchasePrice: 1650, stock: 45 },
-          { id: "p2", name: "Soyabean Oil 5 Litre", sku: "OIL-SOY-5L", barcode: "89411002", category: { name: "Grocery" }, sellingPrice: 820, purchasePrice: 760, stock: 30 },
-          { id: "p3", name: "Aarong Milk 1 Litre", sku: "MILK-AAR-1L", barcode: "89411003", category: { name: "Dairy" }, sellingPrice: 90, purchasePrice: 78, stock: 60 },
-          { id: "p4", name: "Dano Milk Powder 1kg", sku: "MILK-DAN-1KG", barcode: "89411004", category: { name: "Dairy" }, sellingPrice: 840, purchasePrice: 780, stock: 15 },
+          { id: "p1", name: "Miniket Premium Rice 25kg", sku: "RICE-MIN-25", barcode: "89411001", category: { name: "Grocery" }, sellingPrice: 1850, purchasePrice: 1650, stock: 45 },
+          { id: "p2", name: "Rupchanda Soyabean Oil 5L", sku: "OIL-SOY-5L", barcode: "89411002", category: { name: "Grocery" }, sellingPrice: 820, purchasePrice: 760, stock: 30 },
+          { id: "p3", name: "Aarong Fresh Milk 1 Litre", sku: "MILK-AAR-1L", barcode: "89411003", category: { name: "Dairy" }, sellingPrice: 90, purchasePrice: 78, stock: 60 },
+          { id: "p4", name: "Dano Full Cream Milk 1kg", sku: "MILK-DAN-1KG", barcode: "89411004", category: { name: "Dairy" }, sellingPrice: 840, purchasePrice: 780, stock: 15 },
           { id: "p5", name: "Radhuni Turmeric Powder 200g", sku: "RAD-TUR-200G", barcode: "89411005", category: { name: "Spices" }, sellingPrice: 110, purchasePrice: 92, stock: 50 },
           { id: "p6", name: "Ispahani Mirzapore Tea 400g", sku: "TEA-ISP-400G", barcode: "89411006", category: { name: "Beverage" }, sellingPrice: 220, purchasePrice: 195, stock: 40 },
           { id: "p7", name: "LUX Beauty Soap 100g", sku: "SOAP-LUX-100G", barcode: "89411007", category: { name: "Personal Care" }, sellingPrice: 65, purchasePrice: 52, stock: 80 },
@@ -202,6 +219,7 @@ export default function PosPage() {
         invoiceNo: data.success && data.data?.invoiceNo ? data.data.invoiceNo : `INV-${Date.now().toString().slice(-6)}`,
         date: new Date(),
         items: [...cart],
+        customer: selectedCustomer,
         subtotal,
         discount: overallDiscount,
         tax: totalTax,
@@ -216,7 +234,7 @@ export default function PosPage() {
       setIsPayModalOpen(false);
       setIsReceiptOpen(true);
       clearCart();
-      loadProducts(); // Refresh stock counts in background
+      loadProducts();
     } catch (err) {
       console.error("Sale submission error:", err);
     } finally {
@@ -237,170 +255,352 @@ export default function PosPage() {
   const categories = ["ALL", "Grocery", "Dairy", "Spices", "Beverage", "Personal Care"];
 
   return (
-    <div style={{ display: "flex", height: "100vh", background: "#f1f5f9", overflow: "hidden" }}>
-      {/* LEFT SECTION: Catalog & Search */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid #cbd5e1" }}>
-        {/* Top Header */}
-        <div style={{ background: "#ffffff", padding: "12px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div style={{ display: "flex", height: "100vh", background: "#0b0f19", overflow: "hidden", color: "#f8fafc" }}>
+      {/* ========================================================================= */}
+      {/* LEFT SECTION: Catalog & Touch Grid */}
+      {/* ========================================================================= */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", borderRight: "1px solid rgba(255, 255, 255, 0.08)" }}>
+        {/* Top POS Header */}
+        <div
+          style={{
+            background: "#111827",
+            padding: "12px 20px",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <Link href="/dashboard" style={{ background: "#f1f5f9", padding: "8px 12px", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "var(--text-main)" }}>
-              ← Dashboard
+            <Link
+              href="/dashboard"
+              style={{
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                padding: "8px 14px",
+                borderRadius: "var(--radius-sm)",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#ffffff",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                transition: "all 0.15s ease",
+              }}
+            >
+              ← ড্যাশবোর্ড
             </Link>
             <div>
-              <h1 style={{ fontSize: 18, fontWeight: 800, color: "var(--primary-dark)" }}>⚡ POS COUNTER</h1>
-              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Main Counter • Live Checkout</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span className="brand-badge" style={{ width: 28, height: 28, fontSize: 14 }}>⚡</span>
+                <h1 style={{ fontSize: 17, fontWeight: 800, color: "#ffffff", letterSpacing: "-0.3px" }}>
+                  UNBEATABLE POS STATION
+                </h1>
+                <span className="badge badge-success" style={{ fontSize: 11 }}>● Live Online</span>
+              </div>
+              <span style={{ fontSize: 11.5, color: "#94a3b8" }}>Terminal: #POS-01 • Cashier: Admin</span>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <div style={{ background: "var(--primary-dark)", borderRadius: 20, padding: 2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ width: 140 }}>
               <LanguageSwitcher isCompact />
             </div>
-            <span className="badge badge-success">● Connected</span>
-            <span style={{ fontSize: 12, color: "var(--text-muted)", background: "#f8fafc", padding: "6px 10px", borderRadius: 6, border: "1px solid #e2e8f0" }}>
-              Press <b>/</b> to search, <b>F8</b> to pay
-            </span>
           </div>
         </div>
 
-        {/* Search & Categories Bar */}
-        <div style={{ background: "#ffffff", padding: "14px 20px", borderBottom: "1px solid #e2e8f0" }}>
-          <div style={{ position: "relative", marginBottom: 12 }}>
-            <input
-              ref={searchInputRef}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="🔍 বারকোড স্ক্যান করুন অথবা প্রোডাক্টের নাম / SKU দিয়ে খুঁজুন (Press '/' to focus)..."
+        {/* Search & Category Filter Bar */}
+        <div style={{ padding: "14px 20px", background: "#111827", borderBottom: "1px solid rgba(255, 255, 255, 0.08)" }}>
+          <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+            <div
               style={{
-                width: "100%",
-                padding: "12px 16px",
-                fontSize: 15,
-                borderRadius: 10,
-                border: "2px solid #6366f1",
-                outline: "none",
-                background: "#f8fafc",
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                background: "#1f2937",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                borderRadius: "var(--radius-md)",
+                padding: "10px 14px",
+                boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)",
               }}
-            />
+            >
+              <IconSearch size={18} color="#818cf8" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="🔍 বারকোড স্ক্যান করুন বা প্রোডাক্ট খুঁজুন... (শর্টকাট: /)"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  width: "100%",
+                  border: "none",
+                  background: "transparent",
+                  color: "#ffffff",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  outline: "none",
+                }}
+              />
+              <kbd style={{ background: "#374151", color: "#9ca3af", padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>
+                /
+              </kbd>
+            </div>
           </div>
 
-          <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+          {/* Categories Horizontal Scroller */}
+          <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2 }}>
             {categories.map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => setCategory(cat)}
                 style={{
                   padding: "6px 14px",
-                  borderRadius: 20,
-                  fontSize: 13,
-                  fontWeight: 600,
+                  borderRadius: "var(--radius-full)",
+                  fontSize: 12.5,
+                  fontWeight: 700,
                   border: "none",
                   cursor: "pointer",
-                  background: category === cat ? "var(--primary)" : "#e2e8f0",
-                  color: category === cat ? "#ffffff" : "#475569",
-                  transition: "all 0.15s ease",
                   whiteSpace: "nowrap",
+                  background: category === cat ? "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)" : "#1f2937",
+                  color: category === cat ? "#ffffff" : "#9ca3af",
+                  boxShadow: category === cat ? "0 2px 8px rgba(99, 102, 241, 0.4)" : "none",
+                  transition: "all var(--transition-fast)",
                 }}
               >
-                {cat}
+                {cat === "ALL" ? "সকল পণ্য" : cat}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Product Cards Grid */}
-        <div style={{ flex: 1, padding: 20, overflowY: "auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 14, alignContent: "start" }}>
-          {filteredProducts.map((p) => {
-            const stockNum = Number(p.stock);
-            const priceNum = Number(p.sellingPrice);
-            return (
-              <div
-                key={p.id}
-                onClick={() => addToCart(p)}
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 12,
-                  padding: 14,
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  boxShadow: "var(--shadow-sm)",
-                  transition: "transform 0.1s ease, box-shadow 0.1s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.borderColor = "#818cf8";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "none";
-                  e.currentTarget.style.borderColor = "#e2e8f0";
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, background: "#f1f5f9", padding: "2px 6px", borderRadius: 4, color: "#64748b" }}>
-                      {p.category?.name || "General"}
-                    </span>
-                    <span style={{ fontSize: 11, color: stockNum < 20 ? "#dc2626" : "#16a34a", fontWeight: 600 }}>
-                      Stock: {stockNum}
-                    </span>
+        {/* Product Grid Area */}
+        <div style={{ flex: 1, overflowY: "auto", padding: 20, background: "#0b0f19" }}>
+          {loadingProducts ? (
+            <div style={{ textAlign: "center", padding: 48, color: "#9ca3af" }}>
+              <div style={{ fontSize: 28, marginBottom: 8 }}>⚡</div>
+              <p>প্রোডাক্ট ক্যাটালগ লোড হচ্ছে...</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 48, color: "#9ca3af" }}>
+              <p style={{ fontSize: 16, fontWeight: 700 }}>কোনো পণ্য পাওয়া যায়নি!</p>
+              <span style={{ fontSize: 13 }}>অন্য কোনো নাম বা বারকোড দিয়ে চেষ্টা করুন</span>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                gap: 14,
+              }}
+            >
+              {filteredProducts.map((p) => {
+                const stockNum = Number(p.stock) || 0;
+                const isLowStock = stockNum <= 5;
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => addToCart(p)}
+                    style={{
+                      background: "#111827",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      borderRadius: "var(--radius-md)",
+                      padding: "14px",
+                      cursor: "pointer",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      transition: "all var(--transition-fast)",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-3px)";
+                      e.currentTarget.style.borderColor = "#6366f1";
+                      e.currentTarget.style.boxShadow = "0 10px 20px -5px rgba(99, 102, 241, 0.3)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                      e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.3)";
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                        <span
+                          className="badge"
+                          style={{
+                            fontSize: 10,
+                            padding: "2px 6px",
+                            background: isLowStock ? "rgba(244, 63, 94, 0.2)" : "rgba(16, 185, 129, 0.15)",
+                            color: isLowStock ? "#f43f5e" : "#10b981",
+                            border: `1px solid ${isLowStock ? "rgba(244, 63, 94, 0.4)" : "rgba(16, 185, 129, 0.3)"}`,
+                          }}
+                        >
+                          স্টক: {stockNum}
+                        </span>
+                        <span style={{ fontSize: 10, color: "#6b7280", fontFamily: "monospace" }}>{p.sku}</span>
+                      </div>
+
+                      <strong style={{ fontSize: 13.5, color: "#ffffff", display: "block", lineHeight: 1.3, marginBottom: 8 }}>
+                        {p.name}
+                      </strong>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255, 255, 255, 0.06)", paddingTop: 8 }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: "#10b981" }}>
+                        {formatCurrency(Number(p.sellingPrice))}
+                      </div>
+                      <div
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: "50%",
+                          background: "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+                          color: "#fff",
+                          display: "grid",
+                          placeItems: "center",
+                          fontSize: 14,
+                          fontWeight: 700,
+                        }}
+                      >
+                        ＋
+                      </div>
+                    </div>
                   </div>
-                  <h3 style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 4, lineHeight: 1.3 }}>{p.name}</h3>
-                  <span style={{ fontSize: 11, color: "#94a3b8", fontFamily: "monospace" }}>{p.sku}</span>
-                </div>
-                <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <strong style={{ fontSize: 16, color: "var(--primary-dark)" }}>{formatCurrency(priceNum)}</strong>
-                  <span style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--primary-light)", color: "var(--primary)", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 16 }}>＋</span>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* RIGHT SECTION: Cart & Checkout */}
-      <div style={{ width: 440, background: "#ffffff", display: "flex", flexDirection: "column", height: "100%", boxShadow: "var(--shadow-lg)" }}>
-        {/* Cart Header */}
-        <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <h2 style={{ fontSize: 16, fontWeight: 700 }}>চলতি কার্ট (Cart Items)</h2>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{cart.length}টি আলাদা পণ্য</span>
+      {/* ========================================================================= */}
+      {/* RIGHT SECTION: Cart & Neon Grand Total Billboard */}
+      {/* ========================================================================= */}
+      <div
+        style={{
+          width: 440,
+          background: "#111827",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          boxShadow: "-8px 0 32px rgba(0, 0, 0, 0.4)",
+        }}
+      >
+        {/* Customer Bar */}
+        <div style={{ padding: "12px 18px", background: "#1f2937", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#374151", display: "grid", placeItems: "center" }}>
+              <IconCustomers size={16} color="#818cf8" />
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>{selectedCustomer.name}</div>
+              <span style={{ fontSize: 11, color: "#9ca3af" }}>{selectedCustomer.phone} • {selectedCustomer.points} pts</span>
+            </div>
           </div>
-          {cart.length > 0 && (
-            <button onClick={clearCart} style={{ color: "var(--danger)", background: "none", border: "none", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-              ✕ Clear Cart
-            </button>
-          )}
+          <button
+            onClick={() => {
+              const name = prompt("কাস্টমারের নাম লিখুন:", "Rahim Chowdhury");
+              if (name) setSelectedCustomer({ name, phone: "01711223344", points: 85 });
+            }}
+            style={{
+              padding: "4px 10px",
+              background: "#374151",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "var(--radius-sm)",
+              color: "#ffffff",
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            পরিবর্তন
+          </button>
         </div>
 
-        {/* Cart Item List */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px 20px" }}>
+        {/* Cart Item Rows */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
           {cart.length === 0 ? (
-            <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#94a3b8", textAlign: "center" }}>
-              <span style={{ fontSize: 48, marginBottom: 12 }}>🛒</span>
-              <p style={{ fontWeight: 600, fontSize: 15, color: "#475569" }}>কার্ট সম্পূর্ণ খালি</p>
-              <span style={{ fontSize: 13 }}>বাম পাশ থেকে প্রোডাক্ট সিলেক্ট করুন বা স্ক্যান করুন</span>
+            <div style={{ textAlign: "center", padding: "60px 20px", color: "#6b7280" }}>
+              <div style={{ fontSize: 40, marginBottom: 10 }}>🛒</div>
+              <strong style={{ fontSize: 15, color: "#9ca3af", display: "block" }}>কার্ট বর্তমানে খালি</strong>
+              <span style={{ fontSize: 12 }}>বাম পাশ থেকে প্রোডাক্ট সিলেক্ট বা স্ক্যান করুন</span>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {cart.map((item) => (
-                <div key={item.id} style={{ padding: 12, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a" }}>{item.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{formatCurrency(item.price)} × {item.quantity}</div>
+                <div
+                  key={item.id}
+                  style={{
+                    background: "#1f2937",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "10px 12px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    animation: "fadeIn 0.15s ease-out",
+                  }}
+                >
+                  <div style={{ flex: 1, paddingRight: 10 }}>
+                    <strong style={{ fontSize: 13, color: "#ffffff", display: "block", lineHeight: 1.2 }}>
+                      {item.name}
+                    </strong>
+                    <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
+                      {formatCurrency(item.price)} × {item.quantity} = <strong style={{ color: "#10b981" }}>{formatCurrency(item.price * item.quantity)}</strong>
+                    </div>
                   </div>
 
                   {/* Quantity Stepper */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: 6, padding: "2px 4px" }}>
-                    <button onClick={() => updateQuantity(item.id, -1)} style={{ width: 22, height: 22, border: "none", background: "none", cursor: "pointer", fontWeight: 700 }}>-</button>
-                    <span style={{ minWidth: 20, textAlign: "center", fontSize: 13, fontWeight: 700 }}>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, 1)} style={{ width: 22, height: 22, border: "none", background: "none", cursor: "pointer", fontWeight: 700 }}>+</button>
-                  </div>
-
-                  <div style={{ textAlign: "right", minWidth: 70 }}>
-                    <strong style={{ fontSize: 14, color: "var(--text-main)" }}>{formatCurrency(item.price * item.quantity)}</strong>
-                    <button onClick={() => removeFromCart(item.id)} style={{ display: "block", color: "#94a3b8", background: "none", border: "none", fontSize: 11, cursor: "pointer", marginLeft: "auto" }}>Remove</button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <button
+                      onClick={() => updateQuantity(item.id, -1)}
+                      style={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: 6,
+                        border: "1px solid #4b5563",
+                        background: "#374151",
+                        color: "#fff",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                      }}
+                    >
+                      -
+                    </button>
+                    <span style={{ width: 22, textAlign: "center", fontSize: 13, fontWeight: 800 }}>{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.id, 1)}
+                      style={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: 6,
+                        border: "1px solid #4b5563",
+                        background: "#374151",
+                        color: "#fff",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                      }}
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        marginLeft: 4,
+                        color: "#f43f5e",
+                        display: "grid",
+                        placeItems: "center",
+                      }}
+                    >
+                      <IconTrash size={15} />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -408,168 +608,331 @@ export default function PosPage() {
           )}
         </div>
 
-        {/* Totals & Checkout Actions */}
-        <div style={{ padding: "16px 20px", borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--text-muted)", marginBottom: 6 }}>
-            <span>Subtotal (সাবটোটাল)</span>
-            <span>{formatCurrency(subtotal)}</span>
+        {/* Calculations & Grand Total Billboard */}
+        <div style={{ padding: "16px 20px", background: "#1f2937", borderTop: "1px solid rgba(255, 255, 255, 0.08)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#9ca3af", marginBottom: 6 }}>
+            <span>সাব-টোটাল ({cart.length} আইটেম):</span>
+            <strong>{formatCurrency(subtotal)}</strong>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, color: "var(--text-muted)", marginBottom: 6 }}>
-            <span>Discount (ছাড় ৳)</span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, color: "#9ca3af", marginBottom: 6 }}>
+            <span>ডিসকাউন্ট (৳):</span>
             <input
               type="number"
               min="0"
               value={overallDiscount || ""}
               onChange={(e) => setOverallDiscount(Number(e.target.value) || 0)}
-              placeholder="0.00"
-              style={{ width: 80, padding: "2px 6px", border: "1px solid #cbd5e1", borderRadius: 4, textAlign: "right", fontSize: 13 }}
+              style={{
+                width: 80,
+                textAlign: "right",
+                padding: "2px 6px",
+                borderRadius: 4,
+                border: "1px solid #4b5563",
+                background: "#111827",
+                color: "#ffffff",
+                fontSize: 13,
+                fontWeight: 700,
+              }}
             />
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px dashed #cbd5e1", paddingTop: 10, marginTop: 10, marginBottom: 16 }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Grand Total (সর্বমোট)</span>
-            <strong style={{ fontSize: 22, fontWeight: 800, color: "var(--primary)" }}>{formatCurrency(grandTotal)}</strong>
-          </div>
-
-          <button
-            disabled={cart.length === 0}
-            onClick={openPayModal}
-            className="btn-primary"
+          {/* Glowing Grand Total Billboard */}
+          <div
             style={{
-              width: "100%",
-              padding: "14px 0",
-              fontSize: 16,
-              fontWeight: 700,
-              justifyContent: "center",
-              borderRadius: 10,
-              opacity: cart.length === 0 ? 0.6 : 1,
-              cursor: cart.length === 0 ? "not-allowed" : "pointer",
+              background: "linear-gradient(135deg, #064e3b 0%, #022c22 100%)",
+              border: "1px solid #059669",
+              borderRadius: "var(--radius-md)",
+              padding: "14px 18px",
+              marginTop: 10,
+              marginBottom: 14,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              boxShadow: "0 0 20px rgba(16, 185, 129, 0.25)",
             }}
           >
-            ⚡ Pay Now (F8) • {formatCurrency(grandTotal)}
-          </button>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, color: "#a7f3d0" }}>
+                GRAND TOTAL
+              </span>
+              <div style={{ fontSize: 26, fontWeight: 900, color: "#34d399", letterSpacing: "-0.5px" }}>
+                {formatCurrency(grandTotal)}
+              </div>
+            </div>
+            <span className="badge badge-success" style={{ fontSize: 12, padding: "4px 8px" }}>
+              F8: Pay
+            </span>
+          </div>
+
+          {/* Fast Checkout Action Buttons */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 10 }}>
+            <button
+              onClick={clearCart}
+              disabled={cart.length === 0}
+              style={{
+                padding: "12px",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid #4b5563",
+                background: "#374151",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: cart.length === 0 ? "not-allowed" : "pointer",
+                opacity: cart.length === 0 ? 0.5 : 1,
+              }}
+            >
+              বাতিল (Esc)
+            </button>
+
+            <button
+              onClick={openPayModal}
+              disabled={cart.length === 0}
+              style={{
+                padding: "12px",
+                borderRadius: "var(--radius-md)",
+                border: "none",
+                background: cart.length === 0 ? "#4b5563" : "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                color: "#ffffff",
+                fontWeight: 800,
+                fontSize: 15,
+                cursor: cart.length === 0 ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                boxShadow: cart.length > 0 ? "0 4px 16px rgba(16, 185, 129, 0.45)" : "none",
+              }}
+            >
+              <IconPos size={18} />
+              <span>⚡ বিল কনফার্ম (F8)</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* PAYMENT MODAL */}
+      {/* ========================================================================= */}
+      {/* CHECKOUT & MULTI-PAYMENT MODAL */}
+      {/* ========================================================================= */}
       {isPayModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.7)", display: "grid", placeItems: "center", zIndex: 100, backdropFilter: "blur(4px)" }}>
-          <div style={{ background: "#ffffff", borderRadius: 16, width: "100%", maxWidth: 520, padding: 28, boxShadow: "var(--shadow-pos)" }}>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(11, 15, 25, 0.8)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            display: "grid",
+            placeItems: "center",
+            zIndex: 150,
+            padding: 16,
+            animation: "fadeIn 0.15s ease-out",
+          }}
+        >
+          <div
+            style={{
+              background: "#1f2937",
+              borderRadius: 20,
+              width: "100%",
+              maxWidth: 480,
+              padding: 28,
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
+              color: "#ffffff",
+              animation: "scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <div>
-                <h2 style={{ fontSize: 20, fontWeight: 800 }}>পেমেন্ট গ্রহণ (Payment Checkout)</h2>
-                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>টাকা জমা ও রসিদ তৈরি করুন</span>
+                <h2 style={{ fontSize: 20, fontWeight: 800 }}>💵 পেমেন্ট সংগ্রহ (Payment)</h2>
+                <span style={{ fontSize: 13, color: "#9ca3af" }}>গ্রাহক: {selectedCustomer.name}</span>
               </div>
-              <button onClick={() => setIsPayModalOpen(false)} style={{ border: "none", background: "none", fontSize: 20, cursor: "pointer", color: "#64748b" }}>✕</button>
+              <button
+                onClick={() => setIsPayModalOpen(false)}
+                style={{ background: "none", border: "none", color: "#9ca3af", fontSize: 20, cursor: "pointer" }}
+              >
+                ✕
+              </button>
             </div>
 
-            <div style={{ background: "var(--primary-light)", padding: "16px 20px", borderRadius: 12, marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ color: "var(--primary-dark)", fontWeight: 600 }}>মোট প্রদেয় টাকা:</span>
-              <strong style={{ fontSize: 24, color: "var(--primary-dark)", fontWeight: 800 }}>{formatCurrency(grandTotal)}</strong>
+            {/* Total Due Banner */}
+            <div style={{ background: "#111827", padding: 16, borderRadius: "var(--radius-md)", marginBottom: 18, textAlign: "center", border: "1px solid #374151" }}>
+              <span style={{ fontSize: 12, color: "#9ca3af", textTransform: "uppercase" }}>সর্বমোট প্রদেয় বিল</span>
+              <div style={{ fontSize: 32, fontWeight: 900, color: "#34d399", marginTop: 2 }}>
+                {formatCurrency(grandTotal)}
+              </div>
             </div>
 
             {/* Payment Method Selector */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 8, color: "#475569" }}>পেমেন্ট মাধ্যম (Payment Method)</label>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-                {["CASH", "BKASH", "NAGAD", "CARD", "BANK", "CREDIT"].map((m) => (
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>পেমেন্ট মেথড নির্বাচন করুন</label>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                {[
+                  { key: "CASH", label: "💵 ক্যাশ" },
+                  { key: "BKASH", label: "🌸 বিকাশ" },
+                  { key: "NAGAD", label: "🟠 নগদ" },
+                  { key: "CARD", label: "💳 কার্ড" },
+                ].map((m) => (
                   <button
-                    key={m}
-                    onClick={() => setPaymentMethod(m)}
+                    key={m.key}
+                    type="button"
+                    onClick={() => setPaymentMethod(m.key)}
                     style={{
-                      padding: "10px 0",
-                      borderRadius: 8,
+                      padding: "10px 4px",
+                      borderRadius: "var(--radius-sm)",
+                      border: paymentMethod === m.key ? "2px solid #6366f1" : "1px solid #4b5563",
+                      background: paymentMethod === m.key ? "#312e81" : "#111827",
+                      color: "#ffffff",
+                      fontSize: 12,
                       fontWeight: 700,
-                      fontSize: 13,
-                      border: paymentMethod === m ? "2px solid var(--primary)" : "1px solid #cbd5e1",
-                      background: paymentMethod === m ? "var(--primary-light)" : "#ffffff",
-                      color: paymentMethod === m ? "var(--primary-dark)" : "#334155",
                       cursor: "pointer",
                     }}
                   >
-                    {m}
+                    {m.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Received Amount Input */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 8, color: "#475569" }}>প্রাপ্ত টাকা (Amount Received ৳)</label>
+            {/* Paid Amount & Quick Notes */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
+                ক্যাশ প্রাপ্তি (Tendered Amount ৳)
+              </label>
               <input
                 type="number"
                 value={paidAmount || ""}
-                onChange={(e) => setPaidAmount(Number(e.target.value))}
-                style={{ width: "100%", padding: "12px 14px", fontSize: 18, fontWeight: 700, borderRadius: 8, border: "2px solid #cbd5e1", outline: "none" }}
+                onChange={(e) => setPaidAmount(Number(e.target.value) || 0)}
+                style={{
+                  width: "100%",
+                  padding: "12px 16px",
+                  borderRadius: "var(--radius-sm)",
+                  border: "2px solid #6366f1",
+                  background: "#111827",
+                  color: "#ffffff",
+                  fontSize: 20,
+                  fontWeight: 800,
+                }}
               />
+
+              {/* Quick Cash Buttons */}
+              <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                {[500, 1000, 2000, grandTotal].map((amt, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setPaidAmount(amt)}
+                    style={{
+                      flex: 1,
+                      padding: "6px",
+                      background: "#374151",
+                      border: "1px solid #4b5563",
+                      borderRadius: 6,
+                      color: "#ffffff",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {idx === 3 ? "Exact" : `৳${amt}`}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Change / Due calculations */}
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 14px", background: "#f8fafc", borderRadius: 8, marginBottom: 24, fontSize: 14 }}>
-              <div>
-                <span style={{ color: "#64748b" }}>ফেরত দিতে হবে (Change): </span>
-                <strong style={{ color: "#16a34a" }}>{formatCurrency(changeAmount)}</strong>
-              </div>
-              <div>
-                <span style={{ color: "#64748b" }}>বকেয়া (Due): </span>
-                <strong style={{ color: "#dc2626" }}>{formatCurrency(dueAmount)}</strong>
-              </div>
+            {/* Change / Due Return */}
+            <div style={{ padding: "12px 16px", background: "#111827", borderRadius: "var(--radius-sm)", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 13, color: "#9ca3af" }}>
+                {paidAmount >= grandTotal ? "ফেরতযোগ্য টাকা (Change Return):" : "বাকি থাকবে (Due Balance):"}
+              </span>
+              <strong style={{ fontSize: 18, color: paidAmount >= grandTotal ? "#34d399" : "#f43f5e" }}>
+                {paidAmount >= grandTotal ? formatCurrency(changeAmount) : formatCurrency(dueAmount)}
+              </strong>
             </div>
 
-            <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={() => setIsPayModalOpen(false)} className="btn-secondary" style={{ flex: 1, justifyContent: "center" }}>
-                বাতিল (Cancel)
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button onClick={() => setIsPayModalOpen(false)} className="btn-secondary" style={{ background: "#374151", color: "#fff", borderColor: "#4b5563" }}>
+                বাতিল
               </button>
               <button
                 disabled={submitting}
                 onClick={completeSale}
                 className="btn-primary"
-                style={{ flex: 2, justifyContent: "center", padding: "12px 0", fontSize: 15 }}
+                style={{ background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", padding: "12px 24px", fontSize: 15 }}
               >
-                {submitting ? "প্রসেস হচ্ছে..." : "✓ সেল সম্পন্ন ও প্রিন্ট করুন"}
+                {submitting ? "প্রসেসিং..." : "✓ পেমেন্ট কনফার্ম ও প্রিন্ট"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* RECEIPT MODAL */}
+      {/* ========================================================================= */}
+      {/* THERMAL PRINT RECEIPT POPUP */}
+      {/* ========================================================================= */}
       {isReceiptOpen && lastInvoice && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.7)", display: "grid", placeItems: "center", zIndex: 110 }}>
-          <div style={{ background: "#ffffff", borderRadius: 12, width: 380, padding: 24, boxShadow: "var(--shadow-pos)", textAlign: "center" }}>
-            <div style={{ borderBottom: "1px dashed #cbd5e1", paddingBottom: 12, marginBottom: 12 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800 }}>UNBEATABLE STORE</h2>
-              <p style={{ fontSize: 12, color: "#64748b" }}>Main Branch, Dhaka, Bangladesh</p>
-              <p style={{ fontSize: 12, color: "#64748b" }}>Phone: +880 1700-000000</p>
-              <p style={{ fontSize: 12, fontWeight: 700, marginTop: 6 }}>Invoice: {lastInvoice.invoiceNo}</p>
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(11, 15, 25, 0.85)",
+            backdropFilter: "blur(12px)",
+            display: "grid",
+            placeItems: "center",
+            zIndex: 160,
+            padding: 16,
+          }}
+        >
+          <div
+            style={{
+              background: "#ffffff",
+              color: "#0f172a",
+              borderRadius: 16,
+              width: "100%",
+              maxWidth: 380,
+              padding: 24,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
+              fontFamily: "monospace",
+            }}
+          >
+            <div style={{ textAlign: "center", borderBottom: "2px dashed #cbd5e1", paddingBottom: 12, marginBottom: 12 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 900 }}>UNBEATABLE RETAIL</h2>
+              <p style={{ fontSize: 11, color: "#64748b" }}>Main Branch, Dhanmondi, Dhaka</p>
+              <div style={{ fontSize: 12, fontWeight: 800, marginTop: 4 }}>Invoice: #{lastInvoice.invoiceNo}</div>
+              <div style={{ fontSize: 10, color: "#94a3b8" }}>{new Date().toLocaleString()}</div>
             </div>
 
-            <div style={{ textAlign: "left", fontSize: 12, marginBottom: 12 }}>
-              {lastInvoice.items.map((it: CartItem) => (
-                <div key={it.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+            <div style={{ maxHeight: 180, overflowY: "auto", marginBottom: 12 }}>
+              {lastInvoice.items.map((it: any) => (
+                <div key={it.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
                   <span>{it.name} × {it.quantity}</span>
                   <strong>{formatCurrency(it.price * it.quantity)}</strong>
                 </div>
               ))}
             </div>
 
-            <div style={{ borderTop: "1px dashed #cbd5e1", paddingTop: 8, fontSize: 13, textAlign: "right", marginBottom: 16 }}>
-              <div>Subtotal: {formatCurrency(lastInvoice.subtotal)}</div>
-              {lastInvoice.discount > 0 && <div>Discount: -{formatCurrency(lastInvoice.discount)}</div>}
-              <div style={{ fontSize: 15, fontWeight: 800, marginTop: 4 }}>Grand Total: {formatCurrency(lastInvoice.grandTotal)}</div>
-              <div>Paid ({lastInvoice.paymentMethod}): {formatCurrency(lastInvoice.paidAmount)}</div>
-              {lastInvoice.changeAmount > 0 && <div>Change Return: {formatCurrency(lastInvoice.changeAmount)}</div>}
+            <div style={{ borderTop: "1px dashed #cbd5e1", paddingTop: 8, fontSize: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2 }}>
+                <span>Subtotal:</span>
+                <span>{formatCurrency(lastInvoice.subtotal)}</span>
+              </div>
+              {lastInvoice.discount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 2, color: "#dc2626" }}>
+                  <span>Discount:</span>
+                  <span>-{formatCurrency(lastInvoice.discount)}</span>
+                </div>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 15, fontWeight: 900, marginTop: 4, borderTop: "2px solid #0f172a", paddingTop: 4 }}>
+                <span>TOTAL:</span>
+                <span>{formatCurrency(lastInvoice.grandTotal)}</span>
+              </div>
             </div>
 
-            <p style={{ fontSize: 11, color: "#64748b", marginBottom: 16 }}>ধন্যবাদ, আবার আসবেন!</p>
-
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={() => window.print()} className="btn-secondary" style={{ flex: 1, justifyContent: "center" }}>
-                🖨️ Print
+            <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+              <button onClick={() => setIsReceiptOpen(false)} className="btn-secondary" style={{ flex: 1, fontSize: 12 }}>
+                Close
               </button>
-              <button onClick={() => setIsReceiptOpen(false)} className="btn-primary" style={{ flex: 1, justifyContent: "center" }}>
-                Done
+              <button onClick={() => window.print()} className="btn-primary" style={{ flex: 1, fontSize: 12 }}>
+                🖨️ Print Receipt
               </button>
             </div>
           </div>
